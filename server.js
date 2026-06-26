@@ -199,7 +199,7 @@ io.on('connection', (socket) => {
     if (!oda) return;
     if (oda.aktifOyuncuId !== socket.id) return socket.emit('hata', 'Sıra sizde değil!');
     
-    // ESKİ HALİNE GERİ DÖNDÜRÜLDÜ: Deste bittiğinde doğrudan "Kimse (Berabere)" diyerek bitir.
+    // Deste bittiğinde Kimse (Berabere) mesajı
     if (oda.deste.length === 0) {
       io.to(odaKodu).emit('oyunBitti', { kazanan: "Kimse (Berabere)", formasyon: "Deste Tükendi" });
       return;
