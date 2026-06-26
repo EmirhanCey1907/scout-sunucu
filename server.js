@@ -199,14 +199,20 @@ io.on('connection', (socket) => {
     if (!oda) return;
     if (oda.aktifOyuncuId !== socket.id) return socket.emit('hata', 'Sıra sizde değil!');
     
-    // Deste bittiğinde Kimse (Berabere) mesajı
+    // GÜNCELLEME: Deste bittiyse hemen berabere yapma. Yerde alınabilir market var mı kontrol et!
     if (oda.deste.length === 0) {
-      io.to(odaKodu).emit('oyunBitti', { kazanan: "Kimse (Berabere)", formasyon: "Deste Tükendi" });
-      return;
+      const alinabilirMarketVarMi = oda.marketler.some(m => !m.kilitliMi && m.kartlar.length > 0);
+      if (alinabilirMarketVarMi) {
+        return socket.emit('hata', 'Deste bitti! Lütfen yerdeki dolu marketlerden birini alarak formasyonunu tamamla.');
+      } else {
+        io.to(odaKodu).emit('oyunBitti', { kazanan: "Kimse (Berabere)", formasyon: "Deste Tükendi ve Tüm Marketler Boş" });
+        return;
+      }
     }
     
     const musaitMarketVarMi = oda.marketler.some(m => !m.kilitliMi && m.kartlar.length < 3);
-    if (!musaitMarketVarMi) return socket.emit('hata', 'Tüm marketler dolu! Bir market almalısın.');
+    if (!musaitMarketVarMi) return socket.emit('hata', 'Tüm marketler dolu! Önce bir market almalısın.');
+    
     socket.emit('kartGozuktu', oda.deste[oda.deste.length - 1]);
   });
 
